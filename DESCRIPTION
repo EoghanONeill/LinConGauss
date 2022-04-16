@@ -1,10 +1,10 @@
 Package: LinConGauss
-Title: What the Package Does (One Line, Title Case)
+Title: Samples and integrals for standard multivariate Gaussian distributions under linear domain constraints.
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Eoghan", "O'Neill", , "oneill.eoghan.1@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-1274-4248"))
+Description: Samples and integrals for standard multivariate Gaussian distributions under linear domain constraints. This package is an implementaiton of the methods described by Gessner et al. (2019). Gessner, A., Kanjilal, O., & Hennig, P. (2020, June). Integrals over Gaussians under linear domain constraints. In International Conference on Artificial Intelligence and Statistics (pp. 2764-2774). PMLR.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -14,3 +14,8 @@ Depends:
 LazyData: true
 URL: https://github.com/EoghanONeill/LinConGauss
 BugReports: https://github.com/EoghanONeill/LinConGauss/issues
+LinkingTo: 
+    RcppArmadillo,
+    Rcpp
+Imports: 
+    Rcpp
