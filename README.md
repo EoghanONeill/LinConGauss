@@ -47,10 +47,10 @@ sub_ret <- LinConGauss::SubsetSim(A, bvec,N, rho )
 
 hdr_ret <- LinConGauss::HDR_algo(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
 
-#from subset sim
+#Probability Estimate from subset simulation
 exp(sub_ret$logZ)
 
-#from HDR
+#Probability Estimate from HDR
 exp(hdr_ret)
 
 
@@ -60,13 +60,14 @@ sub_retFast <- LinConGauss::SubsetSimFast(A, bvec,N, rho )
 
 hdr_retFast <- LinConGauss::HDR_algoFast(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
 
-#from subset sim
+#Probability Estimate from subset simulation
 exp(sub_retFast$logZ)
 
-#from HDR
+#Probability Estimate from HDR
 exp(hdr_retFast)
 
 
+# Direct Monte Carlo Samples
 N_samps <- 1000000
 samps_in <- 0
 
@@ -80,13 +81,13 @@ for(i in 1:N_samps){
 
 }
 
+#Direct Monte Carlo Probability Estimate
 samps_in/N_samps
 
 
 #exact answer
 
 (pnorm(3)-pnorm(1))*(pnorm(1)-pnorm(0))
-
 
 
 ```
