@@ -4,7 +4,7 @@
 \alias{LinESS}
 \title{Elliptical slice sampling for a linearly constrained standard normal distribution (Algorithm 2 of Gessner et al.)}
 \usage{
-LinESS(A, b, N, x0)
+LinESS(A, b, N, x0, nskip = 0)
 }
 \arguments{
 \item{A}{A matrix that together with b defines a set of constraints such that x is in the constrained domain if all(A\%*\%x + b >0 ). Number of rows is dimension of space in which samples are obtained. number of columns is number of constraints.}

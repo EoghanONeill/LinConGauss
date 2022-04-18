@@ -3,15 +3,17 @@
 #' @title Find Shift function
 #'
 #' @description Find a shift such that a fraction rho of X fall into the resulting domain
+#' @import Rcpp
 #' @param rho Fraction of X that fall in the resulting domain
 #' @param X A matrix. Each column is a sample from a (possibly constrained) multivariate Gaussian.
 #' @param A A matrix that together with b defines a set of constraints such that x is in the constrained domain if all(A%*%x + b >0 ). Number of rows is dimension of space in which samples are obtained. number of columns is number of constraints.
 #' @param b A vector that together with A defines a set of constraints such that x is in the constrained domain if all(A%*%x + b >0 ). Number of elements is number of constraints.
-#' @export
 #' @return A list is returned containing the following elements:
 #' \item{gamma_scalar}{Scalar. Shift such that rho*N samples lie in the domain.}
 #' \item{rho_hat}{Scalar. True fraction in domain after shift by gamma_scalar. Can deviate from rho.}
 #' \item{inside_inds}{Indices of the columns in the constraint after shift by gamma_scalar.}
+#' @useDynLib LinConGauss, .registration = TRUE
+#' @export
 FindShift <- function(rho,X,A,b){
 
   #element m,n of resulting array is t(a_m)%*%x_n
@@ -20,6 +22,8 @@ FindShift <- function(rho,X,A,b){
 
 
   # atxb_mat is a matrix of size ncol(A) by ncol(X) ( = N)
+  # print(" X = ")
+  # print( X)
 
   atxb_mat <- sweep(t(A) %*% X,1,b,"+")
 
@@ -27,15 +31,24 @@ FindShift <- function(rho,X,A,b){
   #i.e. minimum over rows m
 
   # mins_atxb_mat is a vector of ncol(X) ( = N) when we use apply(,2,)
+  # print(" ncol(atxb_mat) = ")
+  # print( ncol(atxb_mat))
+  #
+  # print(" nrow(atxb_mat) = ")
+  # print( nrow(atxb_mat))
 
   mins_atxb_mat <- apply(atxb_mat, 2, min)
+
+  # print(" length(mins_atxb_mat) = ")
+  # print( length(mins_atxb_mat))
 
 
   #Then take the negative and sort in ascending order
   #these are teh shifts sorted in ascending order
 
   # gamma_vec is a vector of ncol(X) ( = N)
-
+  # print("mins_atxb_mat = ")
+  # print(mins_atxb_mat)
   gamma_vec <- sort(-mins_atxb_mat,decreasing = FALSE)
 
   #there are faster functions
@@ -47,9 +60,26 @@ FindShift <- function(rho,X,A,b){
   rhoN_ind <- floor(rho*N)
 
 
+  # print(" ncol(X) = ")
+  # print( ncol(X))
+  # print(" ncol(atxb_mat) = ")
+  # print( ncol(atxb_mat))
+
+  # print("length(gamma_vec) = ")
+  # print(length(gamma_vec))
+  # print("gamma_vec = ")
+  # print(gamma_vec)
+
+
+  # print("rhoN_ind = ")
+  # print(rhoN_ind)
+
 
   gamma_scalar <- (gamma_vec[rhoN_ind] + gamma_vec[rhoN_ind+1])/2
 
+
+  # print("gamma_scalar = ")
+  # print(gamma_scalar)
 
   #inside if shift values greater than zero?
   #or greater than shift? (i.e. gamma?)
@@ -61,6 +91,12 @@ FindShift <- function(rho,X,A,b){
   #presumably must be number in domain after shift by gamma_scalar
   rho_hat <- sum(mins_atxb_mat + gamma_scalar >0)/N # scalar
   inside_inds <- which(mins_atxb_mat + gamma_scalar >0) # vector of length 0 <= length() < N
+
+  # print("rho_hat = ")
+  # print(rho_hat)
+
+  # print("inside_inds = ")
+  # print(inside_inds)
 
   ret_list <- list()
 
@@ -101,7 +137,7 @@ xtheta <- function(theta, x0,nu){
 #' @param x0 Initial value. Must be a vector that lies inside the constrained domain.
 #' @export
 #' @return A matrix with number of columns equal to the number of samples, N, and number of rows equal to the the dimension of the space in which samples are obtained.
-LinESS <- function(A,b,N,x0){
+LinESS <- function(A,b,N,x0, nskip = 0){
 
   #initial vector needs to be in domain
   #ensure function not clearly defined
@@ -109,7 +145,7 @@ LinESS <- function(A,b,N,x0){
   #Resample if not in domain?
   if(all(t(A)%*% x0 + b > 0)){
     # in domain
-    print("in domain")
+    # print("in domain")
   }else{
     stop("Error. Initial vector not in domain")
 
@@ -139,7 +175,7 @@ LinESS <- function(A,b,N,x0){
 
   # print("line 120")
 
-  for(n in 1:N){
+  for(n in 1:(N*nskip)){
 
     # print("line 124")
 
@@ -267,7 +303,7 @@ LinESS <- function(A,b,N,x0){
     # print("theta_jhalf_vec = ")
     # print(theta_jhalf_vec)
 
-    print("line 244")
+    # print("line 244")
 
     # theta_jhalf_vec <- theta_jhalf_vec[is.finite(theta_jhalf_vec)]
 
@@ -505,7 +541,19 @@ LinESS <- function(A,b,N,x0){
     # print("theta_u")
 
     xtemp <- xtheta(theta_u, x0, nu)
-    X[,n] <- xtemp
+
+
+    if(nskip ==0){
+      X[,n] <- xtemp
+    }else{
+      if( (n %% nskip) == 0){
+        # print("Column update, n = ")
+        # print(n)
+        X[,n/nskip] <- xtemp
+      }
+    }
+
+
     x0 <- xtemp
 
     # print("attempt new x0 = ")
@@ -518,7 +566,7 @@ LinESS <- function(A,b,N,x0){
     # print(x0)
 
 
-    print("line 486")
+    # print("line 486")
 
 
     while(  prod((t(A)%*% x0 + b > 0)) ==0    ){
@@ -606,6 +654,10 @@ LinESS <- function(A,b,N,x0){
 
         theta_active <- theta_jhalf_vec[active_directions != 0]
 
+      }
+
+      if((length(theta_jhalf_vec) ==0)){
+        theta_active <- theta_jhalf_vec
       }
 
       ellipse_in_domain <- TRUE
@@ -705,7 +757,19 @@ LinESS <- function(A,b,N,x0){
       # print(theta_u)
 
       xtemp <- xtheta(theta_u, x0, nu)
-      X[,n] <- xtemp
+
+
+      if(nskip ==0){
+        X[,n] <- xtemp
+      }else{
+        if( (n %% nskip) == 0){
+          # print("Column update, n = ")
+          # print(n)
+          X[,n/nskip] <- xtemp
+        }
+      }
+
+
       x0 <- xtemp # this new initial value should be in the domain
 
       # print("attempt new x0 = ")
@@ -735,12 +799,15 @@ LinESS <- function(A,b,N,x0){
 #' @param b A vector that together with A defines a set of constraints such that x is in the constrained domain if all(A%*%x + b >0 ). Number of elements is number of constraints.
 #' @param N Number of samples to draw from the constrained domain.
 #' @param rho Fraction of X that fall in the resulting domain
+#' @param nskip Number of samples to skip in order to get more independent samples
 #' @export
 #' @return A list is returned containing the following elements:
 #' \item{logZ}{Scalar. Approximation of log of probability (multi-dimensional integral) for the constrained domain. Biased estimate.}
 #' \item{shift_seq}{Vector of shifts defining nested domains that contain the constrained domain defined by A and b.}
-SubsetSim <- function(A,b,N,rho = 0.5){
+SubsetSim <- function(A,b,N,rho = 0.5,nskip = 0){
   #A written with dimensions of Gessner et al
+
+  # Ntotal <- N*(nskip+1)
 
   #N samples??
   X <- matrix(rnorm(nrow(A)*N),
@@ -757,11 +824,11 @@ SubsetSim <- function(A,b,N,rho = 0.5){
   # in the python code, log nesting factor appears to be
   #  log(rho_hat) minus log(N)
 
-  print("rho =  ")
-  print(rho)
-
-  print("rho_hat =  ")
-  print(rho_hat)
+  # print("rho =  ")
+  # print(rho)
+  #
+  # print("rho_hat =  ")
+  # print(rho_hat)
 
 
   logZ <- log(rho_hat) #scalar
@@ -772,7 +839,9 @@ SubsetSim <- function(A,b,N,rho = 0.5){
 
 
 
+  # x0 <- NA
 
+  x0 <- X[, inside_inds[1]]
 
   while(gamma_scalar >0){
 
@@ -781,13 +850,15 @@ SubsetSim <- function(A,b,N,rho = 0.5){
 
     #create an initial value
     #not sure if this should be in teh other while loop
-
-    x0 <- NA
-
     found_sample <- FALSE
 
-    print("searching for initial value x0")
+    if( prod( t(A)%*% x0 + b + gamma_scalar > 0 )   == 1 ){
+      found_sample <- TRUE
+    }
+
     while(found_sample == FALSE){
+      print("searching for initial value x0")
+
       x0 <- rnorm(nrow(A))
 
       if( prod( t(A)%*% x0 + b + gamma_scalar > 0 )   == 1 ){
@@ -797,30 +868,41 @@ SubsetSim <- function(A,b,N,rho = 0.5){
 
     }
 
-    print("found initial value")
+    # print("found initial value")
+    #
+    # print("gamma_scalar = ")
+    # print(gamma_scalar)
+    #
+    # print("t(A)%*% x0 + b + gamma_scalar = ")
+    # print(t(A)%*% x0 + b + gamma_scalar)
+    #
+    # print("x0 = ")
+    # print(x0)
+    # print("gamma_scalar = ")
+    # print(gamma_scalar)
 
-    print("gamma_scalar = ")
-    print(gamma_scalar)
+    X <- LinESS(A, b + gamma_scalar, N, x0, nskip)
 
-    print("t(A)%*% x0 + b + gamma_scalar = ")
-    print(t(A)%*% x0 + b + gamma_scalar)
-
-    print("x0 = ")
-    print(x0)
-
-
-    X <- LinESS(A, b + gamma_scalar, N, x0)
+    # print("gamma_scalar = ")
+    # print(gamma_scalar)
 
     res_shift <- FindShift(rho,X,A,b)
     gamma_scalar <- res_shift$gamma_scalar
     rho_hat <- res_shift$rho_hat
     inside_inds <- res_shift$inside_inds
 
-    print("rho =  ")
-    print(rho)
+    # print("inside_inds = ")
+    # print(inside_inds)
+    # print("gamma_scalar = ")
+    # print(gamma_scalar)
 
-    print("rho_hat =  ")
-    print(rho_hat)
+    x0 <- X[, inside_inds[1]]
+
+    # print("rho =  ")
+    # print(rho)
+    #
+    # print("rho_hat =  ")
+    # print(rho_hat)
 
     logZ <- logZ + log(rho_hat)
 
@@ -860,7 +942,7 @@ SubsetSim <- function(A,b,N,rho = 0.5){
 #' @param N Number of samples to draw from the constrained domain.
 #' @export
 #' @return Approximation of log of probability (multi-dimensional integral) for the constrained domain.
-HDR_algo <- function(A, b, gamma_vec, N){
+HDR_algo <- function(A, b, gamma_vec, N, nskip = 0){
 
   X <- matrix(rnorm(nrow(A)*N),
               nrow = nrow(A),
@@ -898,7 +980,7 @@ HDR_algo <- function(A, b, gamma_vec, N){
     # print("before LinESS in loop iteration number t =")
     # print (t)
 
-    X <- LinESS(A, b + gamma_vec[t], N, x0)
+    X <- LinESS(A, b + gamma_vec[t], N, x0, nskip)
 
     # print("end loop iteration number t =")
     # print (t)

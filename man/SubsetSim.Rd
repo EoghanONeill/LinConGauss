@@ -4,7 +4,7 @@
 \alias{SubsetSim}
 \title{Subset simulation for linear constraints (Algorithm 3 of Gessner et al. 2020)}
 \usage{
-SubsetSim(A, b, N, rho = 0.5)
+SubsetSim(A, b, N, rho = 0.5, nskip = 0)
 }
 \arguments{
 \item{A}{A matrix that together with b defines a set of constraints such that x is in the constrained domain if all(A\%*\%x + b >0 ). Number of rows is dimension of space in which samples are obtained. number of columns is number of constraints.}
@@ -14,6 +14,8 @@ SubsetSim(A, b, N, rho = 0.5)
 \item{N}{Number of samples to draw from the constrained domain.}
 
 \item{rho}{Fraction of X that fall in the resulting domain}
+
+\item{nskip}{Number of samples to skip in order to get more independent samples}
 }
 \value{
 A list is returned containing the following elements:

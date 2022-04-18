@@ -4,7 +4,7 @@
 \alias{HDR_algo}
 \title{The Holmes-Diaconis-Ross algorithm applied to linearly constrained Gaussians (Algorithm 1 of Gessner et al.).}
 \usage{
-HDR_algo(A, b, gamma_vec, N)
+HDR_algo(A, b, gamma_vec, N, nskip = 0)
 }
 \arguments{
 \item{A}{A matrix that together with b defines a set of constraints such that x is in the constrained domain if all(A\%*\%x + b >0 ). Number of rows is dimension of space in which samples are obtained. number of columns is number of constraints.}
