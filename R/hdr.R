@@ -174,8 +174,9 @@ LinESS <- function(A,b,N,x0, nskip = 0){
   M <- ncol(A)
 
   # print("line 120")
+  Ntotal <- N*(nskip+1)
 
-  for(n in 1:(N*nskip)){
+  for(n in 1:Ntotal){
 
     # print("line 124")
 
@@ -546,10 +547,10 @@ LinESS <- function(A,b,N,x0, nskip = 0){
     if(nskip ==0){
       X[,n] <- xtemp
     }else{
-      if( (n %% nskip) == 0){
+      if( (n %% (nskip+1)) == 0){
         # print("Column update, n = ")
         # print(n)
-        X[,n/nskip] <- xtemp
+        X[,n/(nskip+1)] <- xtemp
       }
     }
 
@@ -762,12 +763,13 @@ LinESS <- function(A,b,N,x0, nskip = 0){
       if(nskip ==0){
         X[,n] <- xtemp
       }else{
-        if( (n %% nskip) == 0){
+        if( (n %% (nskip+1)) == 0){
           # print("Column update, n = ")
           # print(n)
-          X[,n/nskip] <- xtemp
+          X[,n/(nskip+1)] <- xtemp
         }
       }
+
 
 
       x0 <- xtemp # this new initial value should be in the domain

@@ -30,8 +30,8 @@ library(LinConGauss)
 A <- rbind(c(1,1,-1,0,0),
            c(-1,0,0,1,-1))
 
-c2 <- c(1,3)
-c1 <- c(0,1)
+c2 <- c(0,1)
+c1 <- c(1,3)
 
 bvec <- c(0,
           -c1[1],
@@ -40,19 +40,31 @@ bvec <- c(0,
           c2[2])
 
 
-N <- 100
+N <- 1000
 rho <- 0.5
 
-sub_ret <- SubsetSim(A, bvec,N, rho )
+sub_ret <- LinConGauss::SubsetSim(A, bvec,N, rho )
 
-hdr_ret <- HDR_algo(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
+hdr_ret <- LinConGauss::HDR_algo(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
 
-#from subset sim 
+#from subset sim
 exp(sub_ret$logZ)
 
 #from HDR
 exp(hdr_ret)
 
+
+
+
+sub_retFast <- LinConGauss::SubsetSimFast(A, bvec,N, rho )
+
+hdr_retFast <- LinConGauss::HDR_algoFast(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
+
+#from subset sim
+exp(sub_retFast$logZ)
+
+#from HDR
+exp(hdr_retFast)
 
 
 N_samps <- 1000000

@@ -134,7 +134,7 @@ arma::mat LinESS_cpp(arma::mat A,
 
   int M = A.n_cols;
 
-  int Ntotal = N*nskip;
+  int Ntotal = N*(nskip+1);
 
   for(int n=0; n<Ntotal;n++){
 
@@ -436,10 +436,10 @@ arma::mat LinESS_cpp(arma::mat A,
     arma::vec xtemp = xtheta_cpp(theta_u, x0, nu) ;
 
     if(nskip ==0){
-      X.col(n/nskip) = xtemp ;
+      X.col(n) = xtemp ;
     }else{
-      if( (n % nskip) == 0){
-        X.col(n/nskip) = xtemp ;
+      if( (n % (nskip + 1)) == 0){
+        X.col(n/(nskip + 1)) = xtemp ;
       }
     }
 
@@ -739,10 +739,10 @@ arma::mat LinESS_cpp(arma::mat A,
 
 
       if(nskip ==0){
-        X.col(n/nskip) = xtemp ;
+        X.col(n) = xtemp ;
       }else{
-        if( (n % nskip) == 0){
-          X.col(n/nskip) = xtemp ;
+        if( (n % (nskip + 1)) == 0){
+          X.col(n/(nskip + 1)) = xtemp ;
         }
       }
 
