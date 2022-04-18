@@ -4,7 +4,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Samples and integrals for standard multivariate Gaussian distributions under linear domain constraints. This package is an implementaiton of the methods described by Gessner et al. (2019). 
+Samples and integrals for standard multivariate Gaussian distributions under linear domain constraints. This package is an implementation of the methods described by Gessner et al. (2019). 
 
 Gessner, A., Kanjilal, O., & Hennig, P. (2020, June). Integrals over Gaussians under linear domain constraints. In International Conference on Artificial Intelligence and Statistics (pp. 2764-2774). PMLR.
 
