@@ -58,7 +58,7 @@ exp(hdr_ret)
 
 sub_retFast <- LinConGauss::SubsetSimFast(A, bvec,N, rho )
 
-hdr_retFast <- LinConGauss::HDR_algoFast(A, bvec,c(sub_ret$shift_seq[1:(length(sub_ret$shift_seq)-1)],0), N )
+hdr_retFast <- LinConGauss::HDR_algoFast(A, bvec,c(sub_retFast$shift_seq[1:(length(sub_retFast$shift_seq)-1)],0), N )
 
 #Probability Estimate from subset simulation
 exp(sub_retFast$logZ)
